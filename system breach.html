@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>System Breach</title>
+
+<style>
+    body {
+        margin: 0;
+        background: black;
+        font-family: "Courier New", monospace;
+        color: #00ff00;
+        text-align: center;
+        padding-top: 80px;
+        overflow: hidden;
+        pointer-events: none;
+        touch-action: none;
+        user-select: none;
+    }
+
+    /* Matrix background */
+    canvas {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+    }
+
+    #warning {
+        font-size: 50px;
+        color: red;
+        animation: blink 0.5s infinite alternate;
+    }
+    @keyframes blink {
+        from { opacity: 1; }
+        to { opacity: 0.2; }
+    }
+
+    .glitch {
+        font-size: 28px;
+        margin-top: 20px;
+        animation: flicker 0.2s infinite;
+    }
+    @keyframes flicker {
+        0% { opacity: 1; }
+        50% { opacity: 0.3; }
+        100% { opacity: 1; }
+    }
+
+    /* Skull animation */
+    #skull {
+        font-size: 100px;
+        color: red;
+        margin-top: 20px;
+        animation: skullFlash 0.4s infinite alternate;
+    }
+    @keyframes skullFlash {
+        from { opacity: 1; transform: scale(1); }
+        to { opacity: 0.2; transform: scale(1.2); }
+    }
+
+    /* Freeze overlay – now transparent, no blur */
+    #freeze {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: transparent; /* no blur */
+        z-index: 9999;
+    }
+</style>
+</head>
+
+<body>
+
+<canvas id="matrix"></canvas>
+
+<div id="freeze"></div>
+
+<div id="skull">💀</div>
+
+<h1 id="warning">⚠ SYSTEM BREACH DETECTED ⚠</h1>
+<div class="glitch" id="msg">Tap anywhere to continue...</div>
+
+<audio id="alertSound">
+    <source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" type="audio/ogg">
+</audio>
+
+<audio id="voice">
+    <source src="https://actions.google.com/sounds/v1/alarms/digital_alarm_clock_long.ogg" type="audio/ogg">
+</audio>
+
+<script>
+/* MATRIX BACKGROUND */
+const canvas = document.getElementById("matrix");
+const ctx = canvas.getContext("2d");
+canvas.height = window.innerHeight;
+canvas.width = window.innerWidth;
+
+let letters = "01";
+letters = letters.split("");
+
+let fontSize = 16;
+let columns = canvas.width / fontSize;
+let drops = [];
+
+for (let i = 0; i < columns; i++) drops[i] = 1;
+
+function draw() {
+    ctx.fillStyle = "rgba(0, 0, 0, 0.06)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = "#00ff00";
+    ctx.font = fontSize + "px Courier New";
+
+    for (let i = 0; i < drops.length; i++) {
+        let text = letters[Math.floor(Math.random() * letters.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.95)
+            drops[i] = 0;
+        drops[i]++;
+    }
+}
+setInterval(draw, 35);
+
+/* MAIN PRANK LOGIC */
+let started = false;
+
+document.addEventListener("click", () => {
+    if (started) return;
+    started = true;
+
+    document.getElementById("msg").innerText = "Starting scan...";
+
+    let alertSound = document.getElementById("alertSound");
+    alertSound.loop = true;
+    alertSound.play().catch(()=>{});
+
+    let voice = document.getElementById("voice");
+    voice.loop = true;
+    voice.play().catch(()=>{});
+
+    // Vibrations (Android)
+    if (navigator.vibrate) {
+        navigator.vibrate([300,150,300,150,600]);
+        setInterval(() => {
+            navigator.vibrate([200,100,200]);
+        }, 4000);
+    }
+
+    let messages = [
+        "Injecting malware modules...",
+        "Accessing encrypted folders...",
+        "Decrypting personal photos...",
+        "Reading WhatsApp chats...",
+        "Connecting to remote server...",
+        "Uploading data...",
+        "System override initiated...",
+        "Device compromised!"
+    ];
+
+    let i = 0;
+    setInterval(() => {
+        if (i < messages.length) {
+            document.getElementById("msg").innerText = messages[i++];
+        }
+    }, 1700);
+
+    // Fake shake
+    setInterval(() => {
+        document.body.style.transform =
+        `translate(${Math.random()*5-2}px, ${Math.random()*5-2}px)`;
+    }, 150);
+
+    // End prank
+    setTimeout(() => {
+        alertSound.pause();
+        voice.pause();
+        document.getElementById("freeze").remove();
+        document.body.style.transform = "none";
+        document.body.innerHTML =
+            "<h1 style='color:white; font-size:45px; margin-top:40vh;'>JUST A PRANK 😄 by Gaurav Indulkar</h1>";
+    }, 60000);
+});
+</script>
+
+</body>
+</html>
